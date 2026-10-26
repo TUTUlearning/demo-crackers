@@ -40,7 +40,7 @@ Upload instructions:
 
 
 UPDATE NOTES:
-- WhatsApp order target set to +91 93426 17318.
+- WhatsApp order target set to +91 99999 99999.
 - Checkout asks customer name, mobile, full delivery address, optional area/PIN and notes.
 - The customer reviews and manually sends the WhatsApp message; no automatic send occurs.
 - Static ZIP does NOT provide secure admin login or save real orders to a database. Production admin needs backend/database setup and secret credentials supplied by the owner through their own account.

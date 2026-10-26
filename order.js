@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  const WA_NUMBER = '919342617318';
+  const WA_NUMBER = '919999999999';
   const CART_KEY = 'ci_cart';
   let products = (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS)) ? PRODUCTS : [];
   let cart = readCart();
