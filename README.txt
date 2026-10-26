@@ -1,4 +1,4 @@
-DEMO CRACKER WEBSITE WEBSITE — FULL CODE AUDIT / MOBILE CART FIX
+CRACKERS ICON WEBSITE — FULL CODE AUDIT / MOBILE CART FIX
 
 Files are at the ZIP root. There is no separate assets folder: the logo and hero banner are embedded in the HTML.
 
@@ -37,3 +37,13 @@ Upload instructions:
 3. Upload all files in this folder to the root of the existing GitHub repository, replacing the same-named files.
 4. Commit changes.
 5. Open the live site and hard refresh. On mobile, fully close and reopen the browser tab if the old version is cached.
+
+
+UPDATE NOTES:
+- WhatsApp order target set to +91 93426 17318.
+- Checkout asks customer name, mobile, full delivery address, optional area/PIN and notes.
+- The customer reviews and manually sends the WhatsApp message; no automatic send occurs.
+- Static ZIP does NOT provide secure admin login or save real orders to a database. Production admin needs backend/database setup and secret credentials supplied by the owner through their own account.
+
+CHECKOUT FIX V2:
+If customer clicks the WhatsApp order button from the homepage cart, the website now sends them to order.html#checkout. The cart is preserved in browser localStorage, the cart drawer opens automatically, and the customer details form scrolls into view. Use the new ZIP and open it through the same local server.

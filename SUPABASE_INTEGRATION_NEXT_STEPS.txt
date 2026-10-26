@@ -1,0 +1,9 @@
+CRACKERS ICON — SUPABASE STOREFRONT UPDATE
+
+1. Keep your original ZIP as backup. Extract this updated ZIP into a NEW folder.
+2. In Supabase Dashboard > SQL Editor, open IMPORT_129_PRODUCTS.sql, review it, and click Run. This imports the original 129 products. It sets stock_quantity to 0 because actual stock counts were not provided; update stock in Admin before treating stock counts as accurate.
+3. Run the updated site through a local web server (do not open index.html by double-click): in the folder, open Command Prompt and run: python -m http.server 8000
+4. Open http://localhost:8000/index.html. Public storefront will use Supabase products if rows exist; otherwise it falls back to the built-in catalogue.
+5. Admin: http://localhost:8000/admin-login.html
+
+Important: import SQL is intended to be run once. Running it multiple times will create duplicate catalogue rows. Admin table price is used as the displayed discounted price. MRP is stored in description.

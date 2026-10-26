@@ -1,10 +1,10 @@
-/* Demo Cracker Website catalogue + cart controller. Shared by index.html and order.html. */
+/* Crackers Icon catalogue + cart controller. Shared by index.html and order.html. */
 (function () {
   'use strict';
 
-  const WA_NUMBER = '919999999999';
+  const WA_NUMBER = '919342617318';
   const CART_KEY = 'ci_cart';
-  const products = (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS)) ? PRODUCTS : [];
+  let products = (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS)) ? PRODUCTS : [];
   let cart = readCart();
   let filteredProducts = [];
 
@@ -204,18 +204,48 @@
   function makeOrderText() {
     const list = entries();
     if (!list.length) return '';
-    const lines = ['🎆 *DEMO CRACKER WEBSITE — ORDER ENQUIRY*', `Order ID: ${orderId()}`, '', 'S.No. | Product | Price | Qty | Total', '--------------------------------'];
-    list.forEach(([id, qty], rowIndex) => {
-      const product = products[Number(id)];
+    const customerName = document.getElementById('customerName')?.value.trim() || '';
+    const customerPhone = document.getElementById('customerPhone')?.value.trim() || '';
+    const customerAddress = document.getElementById('customerAddress')?.value.trim() || '';
+    const deliveryArea = document.getElementById('deliveryArea')?.value.trim() || '';
+    const notes = document.getElementById('orderNotes')?.value.trim() || '';
+    const id = orderId();
+    const lines = ['🎆 *CRACKERS ICON — NEW ORDER ENQUIRY*', `Order ID: ${id}`, '', '*CUSTOMER DETAILS*',
+      `Name: ${customerName}`, `Mobile: ${customerPhone}`, `Address: ${customerAddress}`, `Area / PIN code: ${deliveryArea || 'Not provided'}`, '',
+      '*ORDER DETAILS*', 'S.No. | Product | Price | Qty | Total', '--------------------------------'];
+    list.forEach(([productId, qty], rowIndex) => {
+      const product = products[Number(productId)];
       lines.push(`${rowIndex + 1}. ${product.name} | ₹${product.discountPrice} | ${qty} | ₹${Number(product.discountPrice || 0) * Number(qty)}`);
     });
-    lines.push('--------------------------------', `*GRAND TOTAL: ${money(totalCart())}*`, '', 'Please review this enquiry and confirm availability and applicable legal arrangements.');
+    lines.push('--------------------------------', `*TOTAL ITEMS: ${countCart()}*`, `*GRAND TOTAL: ${money(totalCart())}*`,
+      'Payment: Customer and owner to arrange directly; no online payment on website.',
+      `Additional notes: ${notes || 'None'}`, '', 'Please confirm stock, delivery availability and final payment arrangements.');
     return lines.join('\n');
   }
 
   function sendWhatsApp() {
     if (!countCart()) { alert('Please add at least one product to your cart.'); return; }
     if (totalCart() < 3000) { alert('Minimum order value is ₹3,000. Please add more products before submitting your enquiry.'); return; }
+    const name = document.getElementById('customerName');
+    const phone = document.getElementById('customerPhone');
+    const address = document.getElementById('customerAddress');
+    // The homepage cart drawer has no customer fields. Send the customer to
+    // the order page, where the same cart is restored and the checkout form exists.
+    if (!name || !phone || !address) {
+      if (!document.body.classList.contains('order-page')) {
+        location.href = 'order.html#checkout';
+        return;
+      }
+      alert('Checkout fields could not be found. Please refresh the order page and try again.');
+      return;
+    }
+    if (!name.value.trim() || !phone.value.trim() || !address.value.trim()) {
+      alert('Please enter your name, mobile number and full delivery address.');
+      (!name.value.trim() ? name : (!phone.value.trim() ? phone : address)).focus();
+      return;
+    }
+    const digits = phone.value.replace(/\D/g, '');
+    if (digits.length < 10 || digits.length > 13) { alert('Please enter a valid mobile number.'); phone.focus(); return; }
     window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(makeOrderText())}`, '_blank', 'noopener');
   }
 
@@ -228,7 +258,7 @@
       const product = products[Number(id)];
       return `<tr><td>${rowIndex + 1}</td><td>${escapeHtml(product.name)}</td><td>${money(product.discountPrice)}</td><td>${qty}</td><td>${money(Number(product.discountPrice || 0) * Number(qty))}</td></tr>`;
     }).join('');
-    sheet.innerHTML = `<div class="print-order"><img class="print-logo" src="${logo ? logo.src : ''}" alt="Demo Cracker Website"><h1>DEMO CRACKER WEBSITE — ORDER ENQUIRY</h1>
+    sheet.innerHTML = `<div class="print-order"><img class="print-logo" src="${logo ? logo.src : ''}" alt="Crackers Icon"><h1>CRACKERS ICON — ORDER ENQUIRY</h1>
       <p>Order ID: ${orderId()} | Date: ${new Date().toLocaleString('en-IN')}</p><table><thead><tr><th>S.No.</th><th>Product</th><th>Discount Price</th><th>Quantity</th><th>Total</th></tr></thead>
       <tbody>${rows}</tbody><tfoot><tr><td colspan="4">GRAND TOTAL</td><td>${money(totalCart())}</td></tr></tfoot></table>
       <p>Please save this page as PDF from the print dialog. Share the PDF manually through WhatsApp if needed.</p></div>`;
@@ -258,6 +288,7 @@
     if (event.key === 'Enter') document.getElementById('homeSearchBtn')?.click();
   });
   window.addEventListener('ci-cart-updated', () => { if (typeof window.updateCartUI === 'function') window.updateCartUI(); });
+  window.addEventListener('ci-products-loaded', () => { products = Array.isArray(window.PRODUCTS) ? window.PRODUCTS : (typeof PRODUCTS !== 'undefined' ? PRODUCTS : products); cart = readCart(); const select = document.getElementById('categoryFilter'); if (select) { const current = select.value; select.innerHTML = '<option value="">All categories</option>'; [...new Set(products.map(p => p.category))].forEach(category => { const option=document.createElement('option'); option.value=category; option.textContent=category; select.appendChild(option); }); select.value=current; } renderCategoryNav(); renderProducts(); renderCart(); updateTotals(); });
   window.addEventListener('storage', event => {
     if (event.key === CART_KEY) { cart = readCart(); renderProducts(); renderCart(); if (typeof window.updateCartUI === 'function') window.updateCartUI(); }
   });
@@ -277,10 +308,16 @@
   renderCart();
 
   const hash = decodeURIComponent(location.hash.slice(1));
-  if (hash) {
+  if (hash && hash.toLowerCase() !== 'checkout') {
     const match = products.find(product => product.category.toLowerCase() === hash.toLowerCase());
     if (match && categorySelect) categorySelect.value = match.category;
     renderProducts();
   }
   updateTotals();
+  if (document.body.classList.contains('order-page') && hash.toLowerCase() === 'checkout') {
+    setTimeout(() => {
+      openCart();
+      setTimeout(() => document.querySelector('.customer-checkout')?.scrollIntoView({behavior:'smooth', block:'center'}), 250);
+    }, 150);
+  }
 })();

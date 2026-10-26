@@ -1,7 +1,7 @@
 /* Homepage-only sections and compact right-side cart drawer. */
 (function () {
   'use strict';
-  const products = (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS)) ? PRODUCTS : [];
+  let products = (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS)) ? PRODUCTS : [];
   const money = value => '₹' + Number(value || 0).toLocaleString('en-IN');
 
   function readCart() {
@@ -63,6 +63,11 @@
   window.updateCartUI = updateCartUI;
   renderCategories();
   updateCartUI();
+  window.addEventListener('ci-products-loaded', event => {
+    products = Array.isArray(event.detail) ? event.detail : (Array.isArray(window.PRODUCTS) ? window.PRODUCTS : products);
+    renderCategories();
+    updateCartUI();
+  });
   window.addEventListener('ci-cart-updated', updateCartUI);
   window.addEventListener('storage', event => { if (event.key === 'ci_cart') updateCartUI(); });
 })();
